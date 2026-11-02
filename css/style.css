@@ -95,6 +95,58 @@ h1, h2, h3 {
 
 .board-column { display: grid; gap: 12px; justify-items: center; }
 
+.turn-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: min(100%, 240px);
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.turn-banner.black {
+  background: #1b1b1b;
+  color: #f7f3ea;
+}
+
+.turn-banner.white {
+  background: #fffdf8;
+  color: #241c14;
+  border-color: #b9aea0;
+}
+
+.turn-banner.quiet {
+  background: #efe6d4;
+  color: #6d5b48;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.turn-stone {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.turn-banner.black .turn-stone {
+  background: radial-gradient(circle at 35% 30%, #777, #111 70%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.turn-banner.white .turn-stone {
+  background: radial-gradient(circle at 35% 30%, #fff, #d5d5d5 72%);
+  box-shadow: inset 0 0 0 1px rgba(40, 30, 20, 0.28);
+}
+
+.turn-banner.quiet .turn-stone { display: none; }
+
 .board-frame {
   width: min(100%, 560px);
   padding: 12px;

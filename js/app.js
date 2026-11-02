@@ -97,6 +97,7 @@ function renderTutorial(id) {
         </div>
       </article>
       <div class="board-column">
+        <p class="turn-banner" id="turn-banner"><span class="turn-stone"></span><span id="turn-label"></span></p>
         <div class="board-frame"><div class="board-stage" id="stage"></div></div>
         <p class="moves" id="note"></p>
       </div>
@@ -143,6 +144,7 @@ function syncTutorial(tutorial) {
   status.className = "status";
   status.textContent = tutorialFlash || reading.text || tutorial.note;
   document.querySelector("#note").textContent = tutorial.note;
+  showTurn(tutorialGame);
   paint(tutorialGame, {
     hover: tutorialHover,
     showLib: tutorialShowLib,
@@ -184,6 +186,7 @@ function renderPlay() {
         <p class="moves" id="record"></p>
       </article>
       <div class="board-column">
+        <p class="turn-banner" id="turn-banner"><span class="turn-stone"></span><span id="turn-label"></span></p>
         <div class="board-frame"><div class="board-stage" id="stage"></div></div>
       </div>
     </section>`;
@@ -243,6 +246,7 @@ function syncPlay() {
   status.className = `status${playGame.ended ? " good" : ""}`;
   status.textContent = playFlash || reading.text;
   document.querySelector("#turn").textContent = playGame.ended ? "结束" : colorName(playGame.toPlay);
+  showTurn(playGame);
   document.querySelector("#cap-b").textContent = String(playGame.captures.B);
   document.querySelector("#cap-w").textContent = String(playGame.captures.W);
   document.querySelector("#record").textContent = recordText(playGame);
@@ -273,6 +277,7 @@ function renderDrill() {
         </div>
       </article>
       <div class="board-column">
+        <p class="turn-banner quiet" id="turn-banner"><span class="turn-stone"></span><span id="turn-label">数气，不用落子</span></p>
         <div class="board-frame"><div class="board-stage" id="stage"></div></div>
       </div>
     </section>`;
@@ -352,6 +357,7 @@ function renderPuzzle(id) {
         </div>
       </article>
       <div class="board-column">
+        <p class="turn-banner" id="turn-banner"><span class="turn-stone"></span><span id="turn-label"></span></p>
         <div class="board-frame"><div class="board-stage" id="stage"></div></div>
       </div>
     </section>`;
@@ -502,6 +508,9 @@ function syncPuzzle() {
     ? Object.keys(run.node.moves).filter((key) => key !== "pass").map((key) => key.split(",").map(Number))
     : [];
   const eyes = run.locked ? eyesOf(run.game) : [];
+  if (run.puzzle.kind === "judge") showTurn(run.game, { quiet: "看棋判断，不用落子" });
+  else if (run.locked) showTurn(run.game, { quiet: "这题已经解开" });
+  else showTurn(run.game);
   paint(run.game, {
     hover: run.locked ? null : puzzleHover,
     showLib: run.showLib,
@@ -592,6 +601,21 @@ function recordText(game) {
 
 function colorName(color) {
   return color === "B" ? "黑棋" : "白棋";
+}
+
+function showTurn(game, options = {}) {
+  const banner = document.querySelector("#turn-banner");
+  if (!banner) return;
+  const label = banner.querySelector("#turn-label");
+  banner.classList.remove("black", "white", "quiet");
+  if (options.quiet || game.ended) {
+    banner.classList.add("quiet");
+    label.textContent = options.quiet || "对局结束";
+    return;
+  }
+  const black = game.toPlay === "B";
+  banner.classList.add(black ? "black" : "white");
+  label.textContent = black ? "轮到黑棋下子" : "轮到白棋下子";
 }
 
 function markSolved(id) {
