@@ -1,6 +1,7 @@
 import { coordName, createGame, createPosition } from "./engine.js";
 import { drills, puzzles, tutorials } from "./content.js";
 import { createBoardView } from "./board.js?v=3";
+import { bindSoundToggle, playTone, speak, speakMove, speakParts, zhCount } from "./sound.js";
 
 const app = document.querySelector("#app");
 const boot = document.querySelector("#boot");
@@ -47,6 +48,7 @@ tabs.addEventListener("click", (event) => {
 });
 
 window.addEventListener("hashchange", render);
+bindSoundToggle(document.querySelector("#sound-toggle"));
 render();
 
 function resetBoard() {
@@ -110,18 +112,26 @@ function renderTutorial(id) {
   document.querySelector("#undo").onclick = () => {
     tutorialGame.undo();
     tutorialFlash = "已收回一手。";
+    speak(tutorialFlash);
     syncTutorial(tutorial);
   };
   document.querySelector("#reset").onclick = () => {
     tutorialGame = createPosition(tutorial.position);
-    tutorialFlash = "";
+    tutorialFlash = "已恢复例图。";
+    speak(tutorialFlash);
     syncTutorial(tutorial);
   };
   document.querySelector("#prev").onclick = () => {
-    if (index > 0) location.hash = `#tutorial/${tutorials[index - 1].id}`;
+    if (index > 0) {
+      speak(tutorials[index - 1].note);
+      location.hash = `#tutorial/${tutorials[index - 1].id}`;
+    }
   };
   document.querySelector("#next").onclick = () => {
-    if (index < tutorials.length - 1) location.hash = `#tutorial/${tutorials[index + 1].id}`;
+    if (index < tutorials.length - 1) {
+      speak(tutorials[index + 1].note);
+      location.hash = `#tutorial/${tutorials[index + 1].id}`;
+    }
   };
   mount(document.querySelector("#stage"), {
     hover: (r, c) => {
@@ -131,7 +141,8 @@ function renderTutorial(id) {
     },
     play: (r, c) => {
       const result = tutorialGame.play(r, c);
-      tutorialFlash = result.ok ? captureText(result) : reasons[result.reason];
+      tutorialFlash = result.ok ? moveSentence(result, r, c, tutorialGame.size) : reasons[result.reason];
+      voicePlace(result, r, c, tutorialGame.size);
       syncTutorial(tutorial);
     },
   });
@@ -197,6 +208,7 @@ function renderPlay() {
   size.onchange = () => {
     playGame = createGame(Number(size.value));
     playFlash = `已换成 ${playGame.size} 路棋盘。`;
+    speak(sizeSpeech[playGame.size]);
     playHover = null;
     syncPlay();
   };
@@ -211,16 +223,20 @@ function renderPlay() {
   document.querySelector("#pass").onclick = () => {
     const result = playGame.pass();
     playFlash = result.ok ? (result.ended ? "双方连续停着，这盘可以先停下来。这里不数胜负。" : `${colorName(result.color)}停着。`) : reasons[result.reason];
+    if (result.ok && !result.ended) playTone("pass");
+    speak(playFlash);
     syncPlay();
   };
   document.querySelector("#undo").onclick = () => {
     playFlash = playGame.undo() ? "已悔回一手。" : "还没有可以悔的棋。";
+    speak(playFlash);
     syncPlay();
   };
   document.querySelector("#clear").onclick = () => {
     playGame = createGame(playGame.size);
     playFlash = "棋盘已清空。";
     playHover = null;
+    speak(playFlash);
     syncPlay();
   };
   mount(document.querySelector("#stage"), {
@@ -231,9 +247,8 @@ function renderPlay() {
     },
     play: (r, c) => {
       const result = playGame.play(r, c);
-      playFlash = result.ok
-        ? `${colorName(result.color)}下在 ${coordName(r, c, playGame.size)}，这一块有 ${result.liberties.length} 气。${captureText(result)}`
-        : reasons[result.reason];
+      playFlash = result.ok ? moveSentence(result, r, c, playGame.size) : reasons[result.reason];
+      voicePlace(result, r, c, playGame.size);
       syncPlay();
     },
   });
@@ -285,16 +300,26 @@ function renderDrill() {
     const count = Number(event.target.dataset.count);
     if (!count) return;
     drillPicked = count;
+    const drill = drills[drillIndex];
+    if (count === drill.liberties) {
+      playTone("ok");
+      speak(drill.explain);
+    } else {
+      playTone("no");
+      speakPartsAnswer(drill.liberties, drill.explain);
+    }
     syncDrill();
   };
   document.querySelector("#prev").onclick = () => {
     drillIndex = (drillIndex + drills.length - 1) % drills.length;
     drillPicked = null;
+    speak("这一块有几气？");
     renderDrill();
   };
   document.querySelector("#next").onclick = () => {
     drillIndex = (drillIndex + 1) % drills.length;
     drillPicked = null;
+    speak("这一块有几气？");
     renderDrill();
   };
   mount(document.querySelector("#stage"), {
@@ -369,6 +394,7 @@ function renderPuzzle(id) {
     button.dataset.id = item.id;
     button.innerHTML = `<span>${item.title}</span><span>${item.level}</span>`;
     button.onclick = () => {
+      speak(item.task);
       location.hash = `#life/${item.id}`;
     };
     entry.append(button);
@@ -402,6 +428,7 @@ function renderPuzzle(id) {
     solved.clear();
     try { localStorage.removeItem(solvedKey); } catch { /* ignore */ }
     puzzleRun.message = "做题记录已清除。";
+    speak(puzzleRun.message);
     syncPuzzle();
   };
   mount(document.querySelector("#stage"), {
@@ -440,6 +467,8 @@ function playPuzzle(r, c) {
   if (!result.ok) {
     run.message = reasons[result.reason];
     run.tone = "bad";
+    playTone("forbid");
+    speak(run.message);
     syncPuzzle();
     return;
   }
@@ -447,6 +476,8 @@ function playPuzzle(r, c) {
     run.game.undo();
     run.message = "这一手解不开。可以看看气，或点提示。";
     run.tone = "bad";
+    playTone("no");
+    speak(run.message);
     syncPuzzle();
     return;
   }
@@ -455,6 +486,8 @@ function playPuzzle(r, c) {
     if (!reply.ok) {
       run.message = "这题的应手没有下出去，请重来。";
       run.tone = "bad";
+      playTone("forbid");
+      speak(run.message);
       syncPuzzle();
       return;
     }
@@ -466,10 +499,13 @@ function playPuzzle(r, c) {
     run.message = child.success;
     run.tone = "good";
     markSolved(run.id);
+    playTone("ok");
   } else {
     run.message = child.note || "继续。";
     run.tone = "";
+    playTone(result.captured?.length ? "capture" : "place");
   }
+  speak(run.message);
   syncPuzzle();
 }
 
@@ -483,6 +519,8 @@ function answerJudge(choice) {
     run.locked = true;
     markSolved(run.id);
   }
+  playTone(choice.correct ? "ok" : "no");
+  speak(choice.explain);
   syncPuzzle();
 }
 
@@ -582,6 +620,35 @@ function eyesOf(game) {
     }
   }
   return [];
+}
+
+const sizeSpeech = {
+  9: "已换成九路棋盘。",
+  13: "已换成十三路棋盘。",
+  19: "已换成十九路棋盘。",
+};
+
+function moveSentence(result, r, c, size) {
+  return `${colorName(result.color)}下在 ${coordName(r, c, size)}，这一块有 ${result.liberties.length} 气。${captureText(result)}`;
+}
+
+function voicePlace(result, r, c, size) {
+  if (!result.ok) {
+    playTone("forbid");
+    speak(reasons[result.reason]);
+    return;
+  }
+  playTone(result.captured?.length ? "capture" : "place");
+  speakMove({
+    color: result.color,
+    coord: coordName(r, c, size),
+    liberties: result.liberties.length,
+    captured: result.captured?.length || 0,
+  });
+}
+
+function speakPartsAnswer(liberties, explain) {
+  speakParts(["是", zhCount(liberties), "气。", explain]);
 }
 
 function captureText(result) {
