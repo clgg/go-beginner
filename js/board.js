@@ -42,7 +42,7 @@ export function createBoardView(stage, handlers) {
         button.dataset.r = String(r);
         button.dataset.c = String(c);
         const [x, y] = point(r, c, box);
-        const target = Math.max(box.gap * 0.92, box.radius * 1.7);
+        const target = box.gap;
         button.style.left = `${(x / box.cssW) * 100}%`;
         button.style.top = `${(y / box.cssW) * 100}%`;
         button.style.width = `${(target / box.cssW) * 100}%`;

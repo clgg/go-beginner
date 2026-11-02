@@ -1,6 +1,6 @@
 import { coordName, createGame, createPosition } from "./engine.js";
 import { drills, puzzles, tutorials } from "./content.js";
-import { createBoardView } from "./board.js";
+import { createBoardView } from "./board.js?v=3";
 
 const app = document.querySelector("#app");
 const boot = document.querySelector("#boot");
@@ -98,7 +98,7 @@ function renderTutorial(id) {
       </article>
       <div class="board-column">
         <p class="turn-banner" id="turn-banner"><span class="turn-stone"></span><span id="turn-label"></span></p>
-        <div class="board-frame"><div class="board-stage" id="stage"></div></div>
+        <div class="board-fit"><div class="board-frame"><div class="board-stage" id="stage"></div></div></div>
         <p class="moves" id="note"></p>
       </div>
     </section>`;
@@ -187,7 +187,7 @@ function renderPlay() {
       </article>
       <div class="board-column">
         <p class="turn-banner" id="turn-banner"><span class="turn-stone"></span><span id="turn-label"></span></p>
-        <div class="board-frame"><div class="board-stage" id="stage"></div></div>
+        <div class="board-fit"><div class="board-frame"><div class="board-stage" id="stage"></div></div></div>
       </div>
     </section>`;
   const size = document.querySelector("#size");
@@ -278,7 +278,7 @@ function renderDrill() {
       </article>
       <div class="board-column">
         <p class="turn-banner quiet" id="turn-banner"><span class="turn-stone"></span><span id="turn-label">数气，不用落子</span></p>
-        <div class="board-frame"><div class="board-stage" id="stage"></div></div>
+        <div class="board-fit"><div class="board-frame"><div class="board-stage" id="stage"></div></div></div>
       </div>
     </section>`;
   document.querySelector("#numbers").onclick = (event) => {
@@ -358,7 +358,7 @@ function renderPuzzle(id) {
       </article>
       <div class="board-column">
         <p class="turn-banner" id="turn-banner"><span class="turn-stone"></span><span id="turn-label"></span></p>
-        <div class="board-frame"><div class="board-stage" id="stage"></div></div>
+        <div class="board-fit"><div class="board-frame"><div class="board-stage" id="stage"></div></div></div>
       </div>
     </section>`;
   const list = document.querySelector("#list");
