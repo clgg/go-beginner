@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>围棋入门</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="seal" aria-hidden="true">棋</div>
+      <div>
+        <h1>围棋入门</h1>
+        <p>在棋盘上认识落子、气、提子，再做第一批死活题。</p>
+      </div>
+    </header>
+    <nav class="tabs" aria-label="学习内容">
+      <button type="button" data-view="tutorial">教程</button>
+      <button type="button" data-view="play">自由摆子</button>
+      <button type="button" data-view="liberty">数气</button>
+      <button type="button" data-view="life">死活题</button>
+    </nav>
+    <p class="boot" id="boot">正在摆棋盘。如果一直停在这里，请用本地网站或 GitHub Pages 打开，不要直接双击这个文件。</p>
+    <main id="app"></main>
+  </div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
