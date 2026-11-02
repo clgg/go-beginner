@@ -156,6 +156,30 @@ export const drills = [
     explain: "角上只有两个方向还在棋盘里，是 2 气。",
   },
   {
+    id: "corner-blocked",
+    title: "角上被挡住",
+    size: 9,
+    stones: [
+      ["B", 0, 0],
+      ["W", 1, 0],
+    ],
+    focus: [0, 0],
+    liberties: 1,
+    explain: "角上本来有 2 气。下面被白子挡住以后，只剩旁边这一气。",
+  },
+  {
+    id: "vertical",
+    title: "竖着的两子",
+    size: 9,
+    stones: [
+      ["B", 4, 4],
+      ["B", 5, 4],
+    ],
+    focus: [4, 4],
+    liberties: 6,
+    explain: "上下相连也是一块。左右和两头的空点合起来是 6 气。",
+  },
+  {
     id: "blocked",
     title: "被挡住的气",
     size: 9,
@@ -214,6 +238,167 @@ export const puzzles = [
     tree: {
       moves: {
         "0,2": { done: true, success: "堵住最后一口气，白子被提掉。斜角不算气。" },
+      },
+    },
+  },
+  {
+    id: "capture-corner",
+    kind: "play",
+    level: "入门",
+    title: "角上提子",
+    task: "黑先。白子在角上，只剩右边一口气。",
+    picture: `
+O...
+X...
+....
+....
+`,
+    toPlay: "B",
+    goal: "clear-white",
+    tree: {
+      moves: {
+        "0,1": { done: true, success: "角上的子最多两气。这一气被堵住，白子就被提掉。" },
+      },
+    },
+  },
+  {
+    id: "capture-edge",
+    kind: "play",
+    level: "入门",
+    title: "边上提子",
+    task: "黑先。白子贴在左边线上，上下都是黑棋，只剩右边一口气。",
+    picture: `
+X....
+O....
+X....
+.....
+.....
+`,
+    toPlay: "B",
+    goal: "clear-white",
+    tree: {
+      moves: {
+        "1,1": { done: true, success: "边上的子少了棋盘外面的那一口气。最后一口在旁边，堵住就能提。" },
+      },
+    },
+  },
+  {
+    id: "capture-below",
+    kind: "play",
+    level: "入门",
+    title: "从下面提",
+    task: "黑先。白子的最后一口气在下面，不在上面。",
+    picture: `
+..X..
+.XOX.
+.X.X.
+..X..
+.....
+`,
+    toPlay: "B",
+    goal: "clear-white",
+    tree: {
+      moves: {
+        "2,2": { done: true, success: "气可以在上、下、左、右任何一个方向。这里堵住下面这一口，白子就被提掉。" },
+      },
+    },
+  },
+  {
+    id: "capture-two",
+    kind: "play",
+    level: "入门",
+    title: "提掉两子",
+    task: "黑先。两颗白子横着连成一块，整块只剩下面一口气。",
+    picture: `
+.XXXX
+.XOOX
+.X.XX
+.XXXX
+.....
+`,
+    toPlay: "B",
+    goal: "clear-white",
+    tree: {
+      moves: {
+        "2,2": { done: true, success: "两颗子连在一起，气要一起数。堵住共有的那一口气，两子会同时被提掉。" },
+      },
+    },
+  },
+  {
+    id: "atari-corner",
+    kind: "play",
+    level: "入门",
+    title: "角上叫吃",
+    task: "黑先。角上的白子有两气。占掉其中一口，让它只剩一口气。先不要提子。",
+    picture: `
+O....
+.....
+.....
+.....
+.....
+`,
+    toPlay: "B",
+    goal: "atari",
+    tree: {
+      moves: {
+        "0,1": { done: true, success: "占掉右边，白子只剩下面一口气。再堵住就能提。" },
+        "1,0": { done: true, success: "占掉下面，白子只剩右边一口气。角上两气，占掉一口就是叫吃。" },
+      },
+    },
+  },
+  {
+    id: "atari-edge",
+    kind: "play",
+    level: "入门",
+    title: "边上叫吃",
+    task: "黑先。白子在边上，已经少了一气。再占一口，让它变成叫吃。",
+    picture: `
+XO...
+.....
+.....
+.....
+.....
+`,
+    toPlay: "B",
+    goal: "atari",
+    tree: {
+      moves: {
+        "0,2": { done: true, success: "沿边再走一子，白子只剩下面一口气。" },
+        "1,1": { done: true, success: "从下面叫吃也可以。白子现在只剩右边一口气。" },
+      },
+    },
+  },
+  {
+    id: "finish-edge",
+    kind: "play",
+    level: "入门",
+    title: "两口气都要堵",
+    task: "黑先。边上的白子有两气。先占一口，白棋长不出去，再提子。",
+    picture: `
+.X...
+OX...
+.X...
+X....
+.....
+`,
+    toPlay: "B",
+    goal: "clear-white",
+    tree: {
+      moves: {
+        "0,0": {
+          reply: "pass",
+          note: "白棋如果去占另一口气，自己也没有气，所以只能停着。请提子。",
+          moves: {
+            "2,0": { done: true, success: "两口气都堵住了。边上的子也是一口气不剩就要被提。" },
+          },
+        },
+        "2,0": {
+          reply: "pass",
+          note: "白棋补不上这口气，只能停着。请提子。",
+          moves: {
+            "0,0": { done: true, success: "先叫吃，再提子。剩下的那口气同样要堵住。" },
+          },
+        },
       },
     },
   },
@@ -393,6 +578,41 @@ XX...
         },
       },
     },
+  },
+  {
+    id: "judge-one-eye",
+    kind: "judge",
+    level: "判断",
+    title: "只有一只眼",
+    task: "黑棋被围住，中间只有一个空点。这块棋怎样？",
+    picture: `
+.......
+.OOOOO.
+.OXXXO.
+.OX.XO.
+.OXXXO.
+.OOOOO.
+.......
+`,
+    toPlay: "W",
+    expectEyes: 1,
+    choices: [
+      {
+        text: "活棋",
+        correct: false,
+        explain: "一只眼不够。白棋虽然不能随便填进去，但整块棋只有这一气，最后还是会被提掉。",
+      },
+      {
+        text: "死棋",
+        correct: true,
+        explain: "只有一只眼。对方填这只眼时，正好提掉整块黑棋，所以它是死棋。要活，需要两只分开的眼。",
+      },
+      {
+        text: "还要再做一个眼",
+        correct: false,
+        explain: "周围都是白棋，黑棋已经没有地方再做第二只眼了。",
+      },
+    ],
   },
   {
     id: "judge-alive",
