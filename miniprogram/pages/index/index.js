@@ -2,6 +2,7 @@ const { createGame, createPosition, coordName } = require("../../utils/engine.js
 const { tutorials, drills, puzzles } = require("../../utils/content.js");
 const draw = require("../../utils/draw.js");
 const sound = require("../../utils/sound.js");
+const net = require("../../utils/net.js");
 
 const solvedKey = "go-beginner-solved";
 const reasons = {
@@ -68,6 +69,7 @@ Page({
     this.solved = new Set(loadSolved());
     this.startPuzzle(this.puzzleId);
     this.setData({ soundOn: sound.isOn() });
+    net.ping().catch(() => {});
     wx.onWindowResize(() => this.layout(() => this.paint()));
   },
 

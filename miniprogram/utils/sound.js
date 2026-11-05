@@ -59,16 +59,15 @@ function speakMove({ color, coord, liberties, captured }) {
   const letter = String(coord).slice(0, 1);
   const row = zhCount(Number(String(coord).slice(1)));
   const count = zhCount(liberties);
-  const place = `${who}下在${letter}${row}。`;
-  const libs = `这一块有${count}气。`;
-  const natural = [place, libs];
-  const plain = [`${who}下在`, letter, row, "，这一块有", count, "气。"];
+  const clauses = [
+    [[`${who}下在${letter}${row}。`], [`${who}下在`, letter, row]],
+    [[`这一块有${count}气。`], ["，这一块有", count, "气。"]],
+  ];
   if (captured) {
     const taken = zhCount(captured);
-    natural.push(`${who}提掉了${taken}子。`);
-    plain.push(`${who}提掉了`, taken, "子。");
+    clauses.push([[`${who}提掉了${taken}子。`], [`${who}提掉了`, taken, "子。"]]);
   }
-  speakFlexible([natural, plain]);
+  speakClauses(clauses);
 }
 
 function speakParts(parts) {
@@ -76,11 +75,19 @@ function speakParts(parts) {
 }
 
 function speakFlexible(groups) {
+  speakClauses([groups]);
+}
+
+function speakClauses(clauses) {
   if (!enabled) return;
-  const queue = groups
-    .map((parts) => parts.filter(Boolean))
-    .find((parts) => parts.length && parts.every((part) => files[part]));
-  if (!queue) return;
+  const queue = [];
+  clauses.forEach((options) => {
+    const found = options
+      .map((parts) => parts.filter(Boolean))
+      .find((parts) => parts.length && parts.every((part) => files[part]));
+    if (found) queue.push(...found);
+  });
+  if (!queue.length) return;
   playQueue(queue, ++playToken, 0);
 }
 
@@ -134,4 +141,4 @@ function knock(audio, freq, volume, duration, delay = 0) {
   osc.stop(start + duration + 0.02);
 }
 
-module.exports = { isOn, setOn, playTone, speak, speakMove, speakParts, speakFlexible, zhCount, stop };
+module.exports = { isOn, setOn, playTone, speak, speakMove, speakParts, speakFlexible, speakClauses, zhCount, stop };

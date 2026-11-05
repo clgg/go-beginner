@@ -1,7 +1,8 @@
 import { coordName, createGame, createPosition } from "./engine.js";
 import { drills, puzzles, tutorials } from "./content.js";
 import { createBoardView } from "./board.js?v=3";
-import { bindSoundToggle, playTone, speak, speakFlexible, speakMove, zhCount } from "./sound.js?v=2";
+import { bindSoundToggle, playTone, speak, speakFlexible, speakMove, zhCount } from "./sound.js?v=3";
+import { ping } from "./net.js?v=1";
 
 const app = document.querySelector("#app");
 const boot = document.querySelector("#boot");
@@ -50,6 +51,7 @@ tabs.addEventListener("click", (event) => {
 window.addEventListener("hashchange", render);
 bindSoundToggle(document.querySelector("#sound-toggle"));
 render();
+ping().catch(() => {});
 
 function resetBoard() {
   boardView?.destroy();

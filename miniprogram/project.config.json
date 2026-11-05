@@ -1,5 +1,5 @@
 {
-  "description": "围棋入门。语音文件从 https://clgg.github.io 读取，上传前请把 clgg.github.io 加到 downloadFile 合法域名。",
+  "description": "围棋入门。语音从 clgg.github.io 读取，加入 downloadFile 合法域名。接口在 individual-llama-d4e2yugb3aeb228-1524145598.ap-shanghai.app.tcloudbase.com，加入 request 合法域名。",
   "packOptions": {
     "ignore": [],
     "include": []

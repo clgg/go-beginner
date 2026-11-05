@@ -73,16 +73,15 @@ export function speakMove({ color, coord, liberties, captured }) {
   const letter = String(coord).slice(0, 1);
   const row = zhCount(Number(String(coord).slice(1)));
   const count = zhCount(liberties);
-  const place = `${who}下在${letter}${row}。`;
-  const libs = `这一块有${count}气。`;
-  const natural = [place, libs];
-  const plain = [`${who}下在`, letter, row, "，这一块有", count, "气。"];
+  const clauses = [
+    [[`${who}下在${letter}${row}。`], [`${who}下在`, letter, row]],
+    [[`这一块有${count}气。`], ["，这一块有", count, "气。"]],
+  ];
   if (captured) {
     const taken = zhCount(captured);
-    natural.push(`${who}提掉了${taken}子。`);
-    plain.push(`${who}提掉了`, taken, "子。");
+    clauses.push([[`${who}提掉了${taken}子。`], [`${who}提掉了`, taken, "子。"]]);
   }
-  speakFlexible([natural, plain]);
+  speakClauses(clauses);
 }
 
 export function speakParts(parts) {
@@ -90,15 +89,23 @@ export function speakParts(parts) {
 }
 
 export function speakFlexible(groups) {
+  speakClauses([groups]);
+}
+
+export function speakClauses(clauses) {
   if (!enabled) return;
   const token = ++playToken;
   const start = () => {
     if (token !== playToken || !enabled) return;
-    const queue = groups
-      .map((parts) => parts.filter(Boolean))
-      .find((parts) => parts.length && parts.every((part) => manifest[part]));
-    if (!queue) {
-      systemSpeak(groups[0].filter(Boolean).join(""));
+    const queue = [];
+    clauses.forEach((options) => {
+      const found = options
+        .map((parts) => parts.filter(Boolean))
+        .find((parts) => parts.length && parts.every((part) => manifest[part]));
+      if (found) queue.push(...found);
+    });
+    if (!queue.length) {
+      systemSpeak(clauses.flat().flat().filter(Boolean).join(""));
       return;
     }
     playQueue(queue, token, 0);
