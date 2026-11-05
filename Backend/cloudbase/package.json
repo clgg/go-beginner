@@ -1,0 +1,11 @@
+{
+  "name": "gobeginner-api",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@cloudbase/node-sdk": "3.18.7"
+  }
+}
