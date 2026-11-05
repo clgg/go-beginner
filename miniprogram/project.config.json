@@ -1,0 +1,40 @@
+{
+  "description": "围棋入门。语音文件从 https://clgg.github.io 读取，上传前请把 clgg.github.io 加到 downloadFile 合法域名。",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.5.5",
+  "appid": "wx2e17b2995b16b931",
+  "projectname": "go-beginner",
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "auto",
+    "tabSize": 2
+  },
+  "simulatorPluginLibVersion": {}
+}

@@ -1,7 +1,7 @@
 import { coordName, createGame, createPosition } from "./engine.js";
 import { drills, puzzles, tutorials } from "./content.js";
 import { createBoardView } from "./board.js?v=3";
-import { bindSoundToggle, playTone, speak, speakMove, speakParts, zhCount } from "./sound.js";
+import { bindSoundToggle, playTone, speak, speakFlexible, speakMove, zhCount } from "./sound.js?v=2";
 
 const app = document.querySelector("#app");
 const boot = document.querySelector("#boot");
@@ -648,7 +648,11 @@ function voicePlace(result, r, c, size) {
 }
 
 function speakPartsAnswer(liberties, explain) {
-  speakParts(["是", zhCount(liberties), "气。", explain]);
+  const count = zhCount(liberties);
+  speakFlexible([
+    [`是${count}气。`, explain],
+    ["是", count, "气。", explain],
+  ]);
 }
 
 function captureText(result) {

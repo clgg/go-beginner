@@ -1,0 +1,7 @@
+{
+  "desc": "围棋入门教学",
+  "rules": [{
+    "action": "allow",
+    "page": "*"
+  }]
+}

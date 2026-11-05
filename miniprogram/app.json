@@ -1,0 +1,11 @@
+{
+  "pages": ["pages/index/index"],
+  "window": {
+    "navigationBarTitleText": "围棋入门",
+    "navigationBarBackgroundColor": "#f3eadc",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f3eadc"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

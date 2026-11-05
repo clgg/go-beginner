@@ -1,0 +1,144 @@
+<view class="page">
+  <view class="status">
+    <view class="turn {{turnClass}}">
+      <view class="disc" wx:if="{{turnClass !== 'quiet'}}"></view>
+      <text>{{turnLabel}}</text>
+    </view>
+    <view class="sound {{soundOn ? 'on' : ''}}" bindtap="toggleSound">{{soundOn ? '声' : '静'}}</view>
+  </view>
+
+  <view class="stage">
+    <view class="frame">
+      <canvas type="2d" id="board" class="board" style="width: {{boardPx}}px; height: {{boardPx}}px;" catchtouchend="onBoard"></canvas>
+    </view>
+    <scroll-view scroll-y class="sheet" style="height: {{panelMax}}px;">
+      <block wx:if="{{view === 'tutorial'}}">
+        <view class="kicker">{{kicker}}</view>
+        <view class="heading">{{title}}</view>
+        <view class="copy" wx:for="{{paragraphs}}" wx:key="*this">{{item}}</view>
+        <view class="status-line {{statusClass}}" wx:if="{{status}}">{{status}}</view>
+        <view class="note" wx:if="{{note}}">{{note}}</view>
+      </block>
+
+      <block wx:if="{{view === 'play'}}">
+        <view class="kicker">沙盘</view>
+        <view class="heading">自由摆子</view>
+        <view class="stats">
+          <view class="stat"><text class="label">轮到</text><text>{{turnName}}</text></view>
+          <view class="stat"><text class="label">黑提子</text><text>{{capB}}</text></view>
+          <view class="stat"><text class="label">白提子</text><text>{{capW}}</text></view>
+        </view>
+        <view class="copy">没气会提子，不能自杀，也不能下出让局面重复的劫。</view>
+        <view class="status-line {{statusClass}}" wx:if="{{status}}">{{status}}</view>
+        <view class="note">{{record}}</view>
+      </block>
+
+      <block wx:if="{{view === 'liberty'}}">
+        <view class="kicker">{{kicker}}</view>
+        <view class="heading">{{title}}</view>
+        <view class="copy">金圈标出的是同一块棋。先数它有几气，斜角不算。</view>
+        <view class="status-line {{statusClass}}" wx:if="{{status}}">{{status}}</view>
+      </block>
+
+      <block wx:if="{{view === 'life'}}">
+        <view class="kicker">{{kicker}}</view>
+        <view class="heading">{{title}}</view>
+        <view class="copy" wx:for="{{paragraphs}}" wx:key="*this">{{item}}</view>
+        <view class="status-line {{statusClass}}" wx:if="{{status}}">{{status}}</view>
+        <view class="choices" wx:if="{{isJudge}}">
+          <view
+            wx:for="{{choices}}"
+            wx:key="index"
+            class="choice {{item.right ? 'right' : ''}} {{item.wrong ? 'wrong' : ''}}"
+            data-index="{{item.index}}"
+            bindtap="answerJudge"
+          >{{item.text}}</view>
+        </view>
+        <view class="list">
+          <view
+            wx:for="{{puzzleList}}"
+            wx:key="id"
+            class="puzzle {{item.current ? 'current' : ''}} {{item.solved ? 'solved' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="openPuzzle"
+          >
+            <text>{{item.title}}</text>
+            <text class="level">{{item.level}}</text>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+
+  <view class="dock">
+    <block wx:if="{{view === 'tutorial'}}">
+      <view class="row">
+        <view class="btn" data-dir="-1" bindtap="stepTutorial">上一课</view>
+        <view class="btn primary" data-dir="1" bindtap="stepTutorial">下一课</view>
+      </view>
+      <view class="row">
+        <view class="btn quiet" bindtap="undoTutorial">收回</view>
+        <view class="btn quiet" bindtap="resetTutorial">例图</view>
+        <view class="btn quiet {{showLib ? 'on' : ''}}" bindtap="toggleTutorialLib">{{showLib ? '气开' : '气关'}}</view>
+      </view>
+    </block>
+    <block wx:if="{{view === 'play'}}">
+      <view class="row">
+        <view class="btn" bindtap="pass">停着</view>
+        <view class="btn" bindtap="undoPlay">悔棋</view>
+        <view class="btn quiet" bindtap="clearPlay">清空</view>
+      </view>
+      <view class="row">
+        <view class="btn quiet {{size === 9 ? 'on' : ''}}" data-size="9" bindtap="setSize">9路</view>
+        <view class="btn quiet {{size === 13 ? 'on' : ''}}" data-size="13" bindtap="setSize">13路</view>
+        <view class="btn quiet {{size === 19 ? 'on' : ''}}" data-size="19" bindtap="setSize">19路</view>
+        <view class="btn quiet {{showLib ? 'on' : ''}}" bindtap="togglePlayLib">气</view>
+        <view class="btn quiet {{showLabels ? 'on' : ''}}" bindtap="toggleLabels">坐标</view>
+      </view>
+    </block>
+    <block wx:if="{{view === 'liberty'}}">
+      <view class="row nums">
+        <view
+          wx:for="{{numbers}}"
+          wx:key="*this"
+          class="num {{picked === item ? 'picked' : ''}} {{rightCount === item ? 'right' : ''}}"
+          data-count="{{item}}"
+          bindtap="pickCount"
+        >{{item}}</view>
+      </view>
+      <view class="row">
+        <view class="btn" data-dir="-1" bindtap="stepDrill">上一题</view>
+        <view class="btn primary" data-dir="1" bindtap="stepDrill">下一题</view>
+      </view>
+    </block>
+    <block wx:if="{{view === 'life'}}">
+      <view class="row">
+        <view class="btn" bindtap="hintPuzzle">提示</view>
+        <view class="btn {{libOn ? 'on' : ''}}" bindtap="togglePuzzleLib">看气</view>
+        <view class="btn quiet" bindtap="restartPuzzle">重来</view>
+      </view>
+      <view class="row">
+        <view class="btn quiet" bindtap="forgetSolved">清除做题记录</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="tabbar">
+    <view class="tab {{view === 'tutorial' ? 'on' : ''}}" data-view="tutorial" bindtap="switchView">
+      <text class="mark">教</text>
+      <text>教程</text>
+    </view>
+    <view class="tab {{view === 'play' ? 'on' : ''}}" data-view="play" bindtap="switchView">
+      <text class="mark">摆</text>
+      <text>摆子</text>
+    </view>
+    <view class="tab {{view === 'liberty' ? 'on' : ''}}" data-view="liberty" bindtap="switchView">
+      <text class="mark">气</text>
+      <text>数气</text>
+    </view>
+    <view class="tab {{view === 'life' ? 'on' : ''}}" data-view="life" bindtap="switchView">
+      <text class="mark">活</text>
+      <text>死活</text>
+    </view>
+  </view>
+</view>

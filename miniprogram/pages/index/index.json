@@ -1,0 +1,7 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "围棋入门",
+  "navigationBarBackgroundColor": "#f3eadc",
+  "backgroundColor": "#f3eadc",
+  "disableScroll": true
+}
